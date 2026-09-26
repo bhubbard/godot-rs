@@ -36,6 +36,54 @@ impl Color {
     }
 
     #[inline]
+    pub fn is_equal_approx(self, other: Self) -> bool {
+        (self.r - other.r).abs() <= 0.00001
+            && (self.g - other.g).abs() <= 0.00001
+            && (self.b - other.b).abs() <= 0.00001
+            && (self.a - other.a).abs() <= 0.00001
+    }
+
+    #[inline]
+    pub fn inverted(self) -> Self {
+        Self::new(1.0 - self.r, 1.0 - self.g, 1.0 - self.b, self.a)
+    }
+
+    #[inline]
+    pub fn darkened(self, amount: f32) -> Self {
+        Self::new(
+            self.r * (1.0 - amount),
+            self.g * (1.0 - amount),
+            self.b * (1.0 - amount),
+            self.a,
+        )
+    }
+
+    #[inline]
+    pub fn lightened(self, amount: f32) -> Self {
+        Self::new(
+            self.r + (1.0 - self.r) * amount,
+            self.g + (1.0 - self.g) * amount,
+            self.b + (1.0 - self.b) * amount,
+            self.a,
+        )
+    }
+
+    #[inline]
+    pub fn blend(self, over: Self) -> Self {
+        let res_a = self.a + over.a * (1.0 - self.a);
+        if res_a <= 0.0 {
+            Self::TRANSPARENT
+        } else {
+            Self::new(
+                (self.r * self.a + over.r * over.a * (1.0 - self.a)) / res_a,
+                (self.g * self.a + over.g * over.a * (1.0 - self.a)) / res_a,
+                (self.b * self.a + over.b * over.a * (1.0 - self.a)) / res_a,
+                res_a,
+            )
+        }
+    }
+
+    #[inline]
     pub fn from_rgba8(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self::new(
             r as f32 / 255.0,

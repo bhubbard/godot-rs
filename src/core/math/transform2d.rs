@@ -65,6 +65,18 @@ impl Transform2D {
     }
 
     #[inline]
+    pub fn is_equal_approx(&self, b: &Self) -> bool {
+        self.x.is_equal_approx(b.x)
+            && self.y.is_equal_approx(b.y)
+            && self.origin.is_equal_approx(b.origin)
+    }
+
+    #[inline]
+    pub fn is_finite(&self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.origin.is_finite()
+    }
+
+    #[inline]
     pub fn basis_xform(&self, v: Vector2) -> Vector2 {
         Vector2::new(
             self.x.x * v.x + self.y.x * v.y,
@@ -93,6 +105,11 @@ impl Transform2D {
 
     #[inline]
     pub fn inverse(&self) -> Self {
+        self.affine_inverse()
+    }
+
+    #[inline]
+    pub fn affine_inverse(&self) -> Self {
         let det = self.determinant();
         if det.abs() < 0.00001 {
             return Self::IDENTITY;
@@ -105,6 +122,13 @@ impl Transform2D {
             -(x.y * self.origin.x + y.y * self.origin.y),
         );
         Self { x, y, origin }
+    }
+
+    #[inline]
+    pub fn orthonormalized(&self) -> Self {
+        let x = self.x.normalized();
+        let y = (self.y - x * x.dot(self.y)).normalized();
+        Self::new(x, y, self.origin)
     }
 
     #[inline]
@@ -139,6 +163,20 @@ impl Transform2D {
             y: self.y,
             origin: self.origin + self.basis_xform(offset),
         }
+    }
+
+    pub fn interpolate_with(&self, to: &Self, weight: f32) -> Self {
+        let rot1 = self.get_rotation();
+        let rot2 = to.get_rotation();
+        let rot = rot1 + (rot2 - rot1) * weight;
+
+        let scale1 = self.get_scale();
+        let scale2 = to.get_scale();
+        let scale = scale1.lerp(scale2, weight);
+
+        let origin = self.origin.lerp(to.origin, weight);
+
+        Self::from_angle_scale_origin(rot, scale, origin)
     }
 }
 

@@ -41,6 +41,23 @@ impl Quaternion {
         )
     }
 
+    pub fn from_euler(euler: Vector3) -> Self {
+        let half_x = euler.x * 0.5;
+        let half_y = euler.y * 0.5;
+        let half_z = euler.z * 0.5;
+
+        let (sx, cx) = half_x.sin_cos();
+        let (sy, cy) = half_y.sin_cos();
+        let (sz, cz) = half_z.sin_cos();
+
+        Self::new(
+            sx * cy * cz - cx * sy * sz,
+            cx * sy * cz + sx * cy * sz,
+            cx * cy * sz - sx * sy * cz,
+            cx * cy * cz + sx * sy * sz,
+        )
+    }
+
     #[inline]
     pub fn length_squared(&self) -> f32 {
         self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w
@@ -49,6 +66,25 @@ impl Quaternion {
     #[inline]
     pub fn length(&self) -> f32 {
         self.length_squared().sqrt()
+    }
+
+    #[inline]
+    pub fn is_equal_approx(&self, b: &Self) -> bool {
+        (self.x - b.x).abs() <= 0.00001
+            && (self.y - b.y).abs() <= 0.00001
+            && (self.z - b.z).abs() <= 0.00001
+            && (self.w - b.w).abs() <= 0.00001
+    }
+
+    #[inline]
+    pub fn is_finite(&self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite() && self.w.is_finite()
+    }
+
+    #[inline]
+    pub fn angle_to(&self, to: Self) -> f32 {
+        let d = self.dot(to).abs();
+        (2.0 * d.min(1.0).acos()).abs()
     }
 
     #[inline]
@@ -96,7 +132,7 @@ impl Quaternion {
         }
 
         let (scale0, scale1) = if (1.0 - cos_om) > 0.0001 {
-            let omega = cos_om.acos();
+            let omega = cos_om.min(1.0).acos();
             let sin_om = omega.sin();
             (
                 ((1.0 - weight) * omega).sin() / sin_om,

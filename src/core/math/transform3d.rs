@@ -39,6 +39,16 @@ impl Transform3D {
     }
 
     #[inline]
+    pub fn is_equal_approx(&self, b: &Self) -> bool {
+        self.basis.is_equal_approx(&b.basis) && self.origin.is_equal_approx(b.origin)
+    }
+
+    #[inline]
+    pub fn is_finite(&self) -> bool {
+        self.basis.is_finite() && self.origin.is_finite()
+    }
+
+    #[inline]
     pub fn xform(&self, v: Vector3) -> Vector3 {
         self.basis.xform(v) + self.origin
     }
@@ -51,9 +61,19 @@ impl Transform3D {
 
     #[inline]
     pub fn inverse(&self) -> Self {
+        self.affine_inverse()
+    }
+
+    #[inline]
+    pub fn affine_inverse(&self) -> Self {
         let inv_basis = self.basis.inverse();
         let inv_origin = inv_basis.xform(-self.origin);
         Self::new(inv_basis, inv_origin)
+    }
+
+    #[inline]
+    pub fn orthonormalized(&self) -> Self {
+        Self::new(self.basis.orthonormalized(), self.origin)
     }
 
     #[inline]
@@ -77,6 +97,12 @@ impl Transform3D {
     #[inline]
     pub fn rotated(&self, axis: Vector3, angle: f32) -> Self {
         Self::new(self.basis * Basis::from_axis_angle(axis, angle), self.origin)
+    }
+
+    pub fn interpolate_with(&self, to: &Self, weight: f32) -> Self {
+        let basis = self.basis.slerp(to.basis, weight);
+        let origin = self.origin.lerp(to.origin, weight);
+        Self::new(basis, origin)
     }
 }
 

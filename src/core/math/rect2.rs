@@ -37,6 +37,36 @@ impl Rect2 {
     }
 
     #[inline]
+    pub fn has_area(self) -> bool {
+        self.size.x > 0.0 && self.size.y > 0.0
+    }
+
+    #[inline]
+    pub fn is_equal_approx(self, b: Self) -> bool {
+        self.position.is_equal_approx(b.position) && self.size.is_equal_approx(b.size)
+    }
+
+    #[inline]
+    pub fn is_finite(self) -> bool {
+        self.position.is_finite() && self.size.is_finite()
+    }
+
+    #[inline]
+    pub fn abs(self) -> Self {
+        let mut pos = self.position;
+        let mut sz = self.size;
+        if sz.x < 0.0 {
+            pos.x += sz.x;
+            sz.x = -sz.x;
+        }
+        if sz.y < 0.0 {
+            pos.y += sz.y;
+            sz.y = -sz.y;
+        }
+        Self::new(pos, sz)
+    }
+
+    #[inline]
     pub fn has_point(self, point: Vector2) -> bool {
         if point.x < self.position.x {
             return false;
@@ -102,10 +132,25 @@ impl Rect2 {
     }
 
     #[inline]
+    pub fn expand(self, to: Vector2) -> Self {
+        let begin = self.position.min(to);
+        let end = self.end().max(to);
+        Self::new(begin, end - begin)
+    }
+
+    #[inline]
     pub fn grow(self, amount: f32) -> Self {
         Self::new(
             self.position - Vector2::splat(amount),
             self.size + Vector2::splat(amount * 2.0),
+        )
+    }
+
+    #[inline]
+    pub fn grow_individual(self, left: f32, top: f32, right: f32, bottom: f32) -> Self {
+        Self::new(
+            Vector2::new(self.position.x - left, self.position.y - top),
+            Vector2::new(self.size.x + left + right, self.size.y + top + bottom),
         )
     }
 }
@@ -117,13 +162,52 @@ pub struct Rect2i {
 }
 
 impl Rect2i {
+    pub const ZERO: Self = Self {
+        position: Vector2i::ZERO,
+        size: Vector2i::ZERO,
+    };
+
     #[inline]
     pub const fn new(position: Vector2i, size: Vector2i) -> Self {
         Self { position, size }
     }
 
     #[inline]
+    pub const fn from_components(x: i32, y: i32, width: i32, height: i32) -> Self {
+        Self {
+            position: Vector2i::new(x, y),
+            size: Vector2i::new(width, height),
+        }
+    }
+
+    #[inline]
     pub fn as_rect2(self) -> Rect2 {
         Rect2::new(self.position.as_vec2(), self.size.as_vec2())
+    }
+
+    #[inline]
+    pub fn end(self) -> Vector2i {
+        self.position + self.size
+    }
+
+    #[inline]
+    pub fn area(self) -> i32 {
+        self.size.x * self.size.y
+    }
+
+    #[inline]
+    pub fn has_point(self, point: Vector2i) -> bool {
+        point.x >= self.position.x
+            && point.y >= self.position.y
+            && point.x < self.position.x + self.size.x
+            && point.y < self.position.y + self.size.y
+    }
+
+    #[inline]
+    pub fn intersects(self, b: Self) -> bool {
+        self.position.x < b.position.x + b.size.x
+            && self.position.x + self.size.x > b.position.x
+            && self.position.y < b.position.y + b.size.y
+            && self.position.y + self.size.y > b.position.y
     }
 }

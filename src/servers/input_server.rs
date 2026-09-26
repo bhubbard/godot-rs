@@ -21,31 +21,28 @@ impl Input {
 
     pub fn action_press(action: &str, strength: f32) {
         if let Ok(mut lock) = INPUT_SERVER.write() {
-            if let Some(ref mut inp) = *lock {
-                if !inp.pressed_actions.contains(action) {
-                    inp.just_pressed_actions.insert(action.to_string());
-                }
-                inp.pressed_actions.insert(action.to_string());
-                inp.action_strengths.insert(action.to_string(), strength);
+            let inp = lock.get_or_insert_with(InputServer::default);
+            if !inp.pressed_actions.contains(action) {
+                inp.just_pressed_actions.insert(action.to_string());
             }
+            inp.pressed_actions.insert(action.to_string());
+            inp.action_strengths.insert(action.to_string(), strength);
         }
     }
 
     pub fn action_release(action: &str) {
         if let Ok(mut lock) = INPUT_SERVER.write() {
-            if let Some(ref mut inp) = *lock {
-                inp.pressed_actions.remove(action);
-                inp.just_pressed_actions.remove(action);
-                inp.action_strengths.remove(action);
-            }
+            let inp = lock.get_or_insert_with(InputServer::default);
+            inp.pressed_actions.remove(action);
+            inp.just_pressed_actions.remove(action);
+            inp.action_strengths.remove(action);
         }
     }
 
     pub fn flush_just_pressed() {
         if let Ok(mut lock) = INPUT_SERVER.write() {
-            if let Some(ref mut inp) = *lock {
-                inp.just_pressed_actions.clear();
-            }
+            let inp = lock.get_or_insert_with(InputServer::default);
+            inp.just_pressed_actions.clear();
         }
     }
 

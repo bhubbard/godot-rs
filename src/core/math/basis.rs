@@ -1,6 +1,6 @@
 use super::{Quaternion, Vector3};
 use serde::{Deserialize, Serialize};
-use std::ops::Mul;
+use std::ops::{Index, IndexMut, Mul};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Basis {
@@ -71,6 +71,43 @@ impl Basis {
         )
     }
 
+    pub fn to_quaternion(&self) -> Quaternion {
+        let trace = self.rows[0].x + self.rows[1].y + self.rows[2].z;
+        if trace > 0.0 {
+            let mut s = (trace + 1.0).sqrt();
+            let w = s * 0.5;
+            s = 0.5 / s;
+            let x = (self.rows[2].y - self.rows[1].z) * s;
+            let y = (self.rows[0].z - self.rows[2].x) * s;
+            let z = (self.rows[1].x - self.rows[0].y) * s;
+            Quaternion::new(x, y, z, w)
+        } else if self.rows[0].x > self.rows[1].y && self.rows[0].x > self.rows[2].z {
+            let mut s = (1.0 + self.rows[0].x - self.rows[1].y - self.rows[2].z).sqrt();
+            let x = s * 0.5;
+            s = 0.5 / s;
+            let y = (self.rows[1].x + self.rows[0].y) * s;
+            let z = (self.rows[0].z + self.rows[2].x) * s;
+            let w = (self.rows[2].y - self.rows[1].z) * s;
+            Quaternion::new(x, y, z, w)
+        } else if self.rows[1].y > self.rows[2].z {
+            let mut s = (1.0 + self.rows[1].y - self.rows[0].x - self.rows[2].z).sqrt();
+            let y = s * 0.5;
+            s = 0.5 / s;
+            let x = (self.rows[1].x + self.rows[0].y) * s;
+            let z = (self.rows[2].y + self.rows[1].z) * s;
+            let w = (self.rows[0].z - self.rows[2].x) * s;
+            Quaternion::new(x, y, z, w)
+        } else {
+            let mut s = (1.0 + self.rows[2].z - self.rows[0].x - self.rows[1].y).sqrt();
+            let z = s * 0.5;
+            s = 0.5 / s;
+            let x = (self.rows[0].z + self.rows[2].x) * s;
+            let y = (self.rows[2].y + self.rows[1].z) * s;
+            let w = (self.rows[1].x - self.rows[0].y) * s;
+            Quaternion::new(x, y, z, w)
+        }
+    }
+
     pub fn from_euler(euler: Vector3) -> Self {
         let (cx, sx) = (euler.x.cos(), euler.x.sin());
         let (cy, sy) = (euler.y.cos(), euler.y.sin());
@@ -94,12 +131,32 @@ impl Basis {
     }
 
     #[inline]
+    pub fn is_equal_approx(&self, b: &Self) -> bool {
+        self.rows[0].is_equal_approx(b.rows[0])
+            && self.rows[1].is_equal_approx(b.rows[1])
+            && self.rows[2].is_equal_approx(b.rows[2])
+    }
+
+    #[inline]
+    pub fn is_finite(&self) -> bool {
+        self.rows[0].is_finite() && self.rows[1].is_finite() && self.rows[2].is_finite()
+    }
+
+    #[inline]
     pub fn transposed(&self) -> Self {
         Self::new(
             Vector3::new(self.rows[0].x, self.rows[1].x, self.rows[2].x),
             Vector3::new(self.rows[0].y, self.rows[1].y, self.rows[2].y),
             Vector3::new(self.rows[0].z, self.rows[1].z, self.rows[2].z),
         )
+    }
+
+    pub fn orthonormalized(&self) -> Self {
+        let x = self.rows[0].normalized();
+        let mut y = self.rows[1] - x * x.dot(self.rows[1]);
+        y = y.normalized();
+        let z = x.cross(y);
+        Self::new(x, y, z)
     }
 
     pub fn inverse(&self) -> Self {
@@ -142,6 +199,12 @@ impl Basis {
         )
     }
 
+    pub fn slerp(&self, to: Self, weight: f32) -> Self {
+        let q1 = self.to_quaternion();
+        let q2 = to.to_quaternion();
+        Self::from_quaternion(q1.slerp(q2, weight))
+    }
+
     pub fn looking_at(target: Vector3, up: Vector3) -> Self {
         let v_z = -target.normalized();
         let v_x = up.cross(v_z).normalized();
@@ -154,14 +217,39 @@ impl Basis {
     }
 }
 
+impl Index<usize> for Basis {
+    type Output = Vector3;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.rows[index]
+    }
+}
+
+impl IndexMut<usize> for Basis {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.rows[index]
+    }
+}
+
 impl Mul for Basis {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self {
         let tr = rhs.transposed();
         Self::new(
-            Vector3::new(self.rows[0].dot(tr.rows[0]), self.rows[0].dot(tr.rows[1]), self.rows[0].dot(tr.rows[2])),
-            Vector3::new(self.rows[1].dot(tr.rows[0]), self.rows[1].dot(tr.rows[1]), self.rows[1].dot(tr.rows[2])),
-            Vector3::new(self.rows[2].dot(tr.rows[0]), self.rows[2].dot(tr.rows[1]), self.rows[2].dot(tr.rows[2])),
+            Vector3::new(
+                self.rows[0].dot(tr.rows[0]),
+                self.rows[0].dot(tr.rows[1]),
+                self.rows[0].dot(tr.rows[2]),
+            ),
+            Vector3::new(
+                self.rows[1].dot(tr.rows[0]),
+                self.rows[1].dot(tr.rows[1]),
+                self.rows[1].dot(tr.rows[2]),
+            ),
+            Vector3::new(
+                self.rows[2].dot(tr.rows[0]),
+                self.rows[2].dot(tr.rows[1]),
+                self.rows[2].dot(tr.rows[2]),
+            ),
         )
     }
 }
