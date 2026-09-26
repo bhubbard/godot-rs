@@ -1,0 +1,32 @@
+[package]
+name = "godot-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Brandon Hubbard"]
+description = "A pure Rust port and fork of the Godot Engine architecture: Core Variant system, SceneTree, Node hierarchy, 2D/3D Math, Servers, and .tscn parser"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/bhubbard/godot-rs"
+keywords = ["godot", "game-engine", "scene-tree", "variant", "tscn"]
+categories = ["game-engines", "game-development", "data-structures", "parser-implementations"]
+
+[lib]
+name = "godot"
+path = "src/lib.rs"
+
+[[bin]]
+name = "godot"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+indexmap = { version = "2.7", features = ["serde"] }
+bitflags = "2.8"
+regex = "1.11"
+colored = "3.0"
+
+[dev-dependencies]
+tempfile = "3.17"
