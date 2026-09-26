@@ -77,10 +77,10 @@ impl SceneTree {
             child.is_ready = true;
         }
 
-        if let Some(parent) = self.nodes.get_mut(&parent_id) {
-            if !parent.children.contains(&child_id) {
-                parent.children.push(child_id);
-            }
+        if let Some(parent) = self.nodes.get_mut(&parent_id)
+            && !parent.children.contains(&child_id)
+        {
+            parent.children.push(child_id);
         }
 
         true
@@ -91,12 +91,12 @@ impl SceneTree {
             parent.children.retain(|&id| id != child_id);
         }
 
-        if let Some(child) = self.nodes.get_mut(&child_id) {
-            if child.parent == Some(parent_id) {
-                child.parent = None;
-                child.is_in_tree = false;
-                return true;
-            }
+        if let Some(child) = self.nodes.get_mut(&child_id)
+            && child.parent == Some(parent_id)
+        {
+            child.parent = None;
+            child.is_in_tree = false;
+            return true;
         }
 
         false
@@ -127,11 +127,11 @@ impl SceneTree {
             let curr_node = self.nodes.get(&curr_id)?;
             let mut found = None;
             for &child_id in &curr_node.children {
-                if let Some(child) = self.nodes.get(&child_id) {
-                    if child.name == *name {
-                        found = Some(child_id);
-                        break;
-                    }
+                if let Some(child) = self.nodes.get(&child_id)
+                    && child.name == *name
+                {
+                    found = Some(child_id);
+                    break;
                 }
             }
 
@@ -186,10 +186,10 @@ impl SceneTree {
 
             // Process callback or simulation
             // For CharacterBody2D with velocity:
-            if let Some(node) = self.nodes.get_mut(&id) {
-                if let NodeData::CharacterBody2D(ref mut cb) = node.data {
-                    cb.node_2d.position += cb.velocity * delta;
-                }
+            if let Some(node) = self.nodes.get_mut(&id)
+                && let NodeData::CharacterBody2D(ref mut cb) = node.data
+            {
+                cb.node_2d.position += cb.velocity * delta;
             }
         }
     }

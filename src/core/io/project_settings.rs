@@ -57,14 +57,14 @@ impl ProjectSettings {
                         settings.main_scene = val.clone();
                     }
                 } else if current_section == "display" {
-                    if key == "window/size/viewport_width" {
-                        if let Ok(w) = val.parse::<u32>() {
-                            settings.window_width = w;
-                        }
-                    } else if key == "window/size/viewport_height" {
-                        if let Ok(h) = val.parse::<u32>() {
-                            settings.window_height = h;
-                        }
+                    if key == "window/size/viewport_width"
+                        && let Ok(w) = val.parse::<u32>()
+                    {
+                        settings.window_width = w;
+                    } else if key == "window/size/viewport_height"
+                        && let Ok(h) = val.parse::<u32>()
+                    {
+                        settings.window_height = h;
                     }
                 }
 

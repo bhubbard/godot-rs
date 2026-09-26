@@ -1,0 +1,38 @@
+{
+  "name": "godot-rs",
+  "version": "0.1.0",
+  "description": "Pure Rust port and fork of the Godot Engine architecture: Core Variant system, SceneTree, Node hierarchy, 2D/3D Math, Servers, and .tscn parser",
+  "main": "bin/godot.js",
+  "bin": {
+    "godot": "bin/godot.js",
+    "godot-rs": "bin/godot.js"
+  },
+  "files": [
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepublishOnly": "cargo build --release --bin godot && strip -x target/release/godot && cp target/release/godot bin/godot-bin",
+    "test": "node bin/godot.js --help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bhubbard/godot-rs.git"
+  },
+  "keywords": [
+    "godot",
+    "game-engine",
+    "scene-tree",
+    "variant",
+    "tscn",
+    "game-dev",
+    "cli"
+  ],
+  "author": "Brandon Hubbard",
+  "license": "MIT OR Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bhubbard/godot-rs/issues"
+  },
+  "homepage": "https://github.com/bhubbard/godot-rs#readme"
+}

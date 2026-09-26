@@ -34,19 +34,19 @@ impl PhysicsServer2D {
     }
 
     pub fn register_body(desc: PhysicsBody2DDesc) {
-        if let Ok(mut lock) = PHYSICS_SERVER_2D.write() {
-            if let Some(ref mut ps) = *lock {
-                ps.bodies.retain(|b| b.id != desc.id);
-                ps.bodies.push(desc);
-            }
+        if let Ok(mut lock) = PHYSICS_SERVER_2D.write()
+            && let Some(ps) = lock.as_mut()
+        {
+            ps.bodies.retain(|b| b.id != desc.id);
+            ps.bodies.push(desc);
         }
     }
 
     pub fn unregister_body(id: u64) {
-        if let Ok(mut lock) = PHYSICS_SERVER_2D.write() {
-            if let Some(ref mut ps) = *lock {
-                ps.bodies.retain(|b| b.id != id);
-            }
+        if let Ok(mut lock) = PHYSICS_SERVER_2D.write()
+            && let Some(ps) = lock.as_mut()
+        {
+            ps.bodies.retain(|b| b.id != id);
         }
     }
 

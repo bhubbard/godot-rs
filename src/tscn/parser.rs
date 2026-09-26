@@ -70,20 +70,20 @@ impl TscnParser {
             }
 
             // Inside a node section: parse property assignment key = value
-            if let Some(ref mut node) = current_node {
-                if let Some((key, val_str)) = line.split_once('=') {
-                    let key = key.trim();
-                    if key == "groups" {
-                        let groups = parse_string_list(val_str.trim());
-                        for g in groups {
-                            if !node.groups.contains(&g) {
-                                node.groups.push(g);
-                            }
+            if let Some(node) = current_node.as_mut()
+                && let Some((key, val_str)) = line.split_once('=')
+            {
+                let key = key.trim();
+                if key == "groups" {
+                    let groups = parse_string_list(val_str.trim());
+                    for g in groups {
+                        if !node.groups.contains(&g) {
+                            node.groups.push(g);
                         }
-                    } else {
-                        let val = parse_variant_value(val_str.trim(), &ext_resources);
-                        node.properties.insert(key.to_string(), val);
                     }
+                } else {
+                    let val = parse_variant_value(val_str.trim(), &ext_resources);
+                    node.properties.insert(key.to_string(), val);
                 }
             }
         }
@@ -142,7 +142,7 @@ fn parse_attributes(content: &str) -> HashMap<String, String> {
         let mut val = String::new();
         if let Some(&'"') = chars.peek() {
             chars.next(); // Consume quote
-            while let Some(v) = chars.next() {
+            for v in chars.by_ref() {
                 if v == '"' {
                     break;
                 }
@@ -152,7 +152,7 @@ fn parse_attributes(content: &str) -> HashMap<String, String> {
             chars.next();
             val.push('[');
             let mut depth = 1;
-            while let Some(v) = chars.next() {
+            for v in chars.by_ref() {
                 val.push(v);
                 if v == '[' {
                     depth += 1;

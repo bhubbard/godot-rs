@@ -38,12 +38,11 @@ impl AudioServer {
     }
 
     pub fn set_bus_volume_db(bus_idx: usize, volume_db: f32) {
-        if let Ok(mut lock) = AUDIO_SERVER.write() {
-            if let Some(ref mut s) = *lock {
-                if let Some(b) = s.buses.get_mut(bus_idx) {
-                    b.volume_db = volume_db;
-                }
-            }
+        if let Ok(mut lock) = AUDIO_SERVER.write()
+            && let Some(s) = lock.as_mut()
+            && let Some(b) = s.buses.get_mut(bus_idx)
+        {
+            b.volume_db = volume_db;
         }
     }
 }
