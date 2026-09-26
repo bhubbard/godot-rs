@@ -1,7 +1,7 @@
 [package]
 name = "godot-rs"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Brandon Hubbard"]
 description = "A pure Rust port and fork of the Godot Engine architecture: Core Variant system, SceneTree, Node hierarchy, 2D/3D Math, Servers, and .tscn parser"
 license = "MIT OR Apache-2.0"
