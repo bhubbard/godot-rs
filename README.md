@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/badge/crates.io-v0.1.0-orange.svg)](https://crates.io)
 [![Documentation](https://docs.rs/godot-rs/badge.svg)](https://docs.rs/godot-rs)
-[![GitHub Pages](https://img.shields.io/badge/website-live-success.svg)](https://bhubbard.github.io/godot-rs/)
+[![GitHub Pages](https://img.shields.io/badge/website-live-success.svg)](https://code.brandonhubbard.com/godot-rs/)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 
 A pure, high-performance Rust port and architecture fork of [Godot Engine](https://github.com/godotengine/godot).
