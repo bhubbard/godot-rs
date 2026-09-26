@@ -162,7 +162,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "godot-rs"
+name = "godot-core-rs"
 version = "0.1.0"
 dependencies = [
  "bitflags",
