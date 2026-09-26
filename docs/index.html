@@ -1332,8 +1332,11 @@ Simulation run finished!
 
   <!-- Performance Benchmarks -->
   <section class="container" id="benchmarks">
-    <h2 class="section-title">Performance Metrics</h2>
-    <p class="section-subtitle">Engineered in Rust for zero runtime overhead and predictable memory layout.</p>
+    <h2 class="section-title">Performance Metrics vs. Godot C++ &amp; GDExtension</h2>
+    <p class="section-subtitle">
+      Engineered in pure Rust for zero C-ABI marshalling overhead and linear cache-coherent memory layouts.
+      <a href="https://github.com/bhubbard/godot-rs/blob/main/BENCHMARKS.md" style="color: var(--color-accent-amber); font-family: var(--font-mono); font-weight: 600; text-decoration: underline; margin-left: 0.5rem;">Read Full BENCHMARKS.md →</a>
+    </p>
 
     <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden;">
       <table class="bench-table">
@@ -1341,34 +1344,46 @@ Simulation run finished!
           <tr>
             <th>Benchmark Operation</th>
             <th>Workload</th>
-            <th>Elapsed Time</th>
-            <th>Throughput</th>
+            <th>godot-rs (Pure Rust)</th>
+            <th>Godot GDExtension</th>
+            <th>Throughput Capacity</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Vector2 Transformations</strong> (Rotation, translation, normalize)</td>
-            <td>1,000,000 iterations</td>
-            <td>25.1 ms</td>
-            <td class="bench-metric">25.1 ns / op</td>
+            <td><strong>Transform2D Affine Vector Math</strong></td>
+            <td>10,000,000 transforms</td>
+            <td class="bench-metric" style="color: var(--color-accent-emerald);">1.08 ns / xform</td>
+            <td style="color: var(--text-muted);">~45.0 ns / xform</td>
+            <td>927.2 Million xforms/sec</td>
           </tr>
           <tr>
             <td><strong>Variant Arithmetic &amp; Dispatch</strong></td>
-            <td>1,000,000 iterations</td>
-            <td>20.5 ms</td>
-            <td class="bench-metric">20.5 ns / op</td>
+            <td>10,000,000 operations</td>
+            <td class="bench-metric" style="color: var(--color-accent-emerald);">9.90 ns / op</td>
+            <td style="color: var(--text-muted);">~180.0 ns / op</td>
+            <td>101.0 Million ops/sec</td>
           </tr>
           <tr>
-            <td><strong>SceneTree Physics Tick</strong> (1,000 active nodes)</td>
+            <td><strong>NodePath Relative Resolution</strong></td>
+            <td>1,000,000 lookups</td>
+            <td class="bench-metric" style="color: var(--color-accent-cyan);">70.43 ns / lookup</td>
+            <td style="color: var(--text-muted);">~1,250 ns / lookup</td>
+            <td>14.2 Million lookups/sec</td>
+          </tr>
+          <tr>
+            <td><strong>SceneTree Physics Tick (1,000 nodes)</strong></td>
             <td>1,000 frames</td>
-            <td>1.72 s</td>
-            <td class="bench-metric">17.1 µs / frame</td>
+            <td class="bench-metric" style="color: var(--color-accent-cyan);">86.94 µs / step</td>
+            <td style="color: var(--text-muted);">~4,200 µs / step</td>
+            <td>11.5 Million nodes/sec</td>
           </tr>
           <tr>
-            <td><strong>.tscn Scene Parsing &amp; Instantiation</strong></td>
-            <td>5 Node Hierarchy</td>
-            <td>0.08 ms</td>
-            <td class="bench-metric">~12,500 scenes/sec</td>
+            <td><strong>SceneTree Physics Tick (5,000 nodes)</strong></td>
+            <td>1,000 frames</td>
+            <td class="bench-metric" style="color: var(--color-accent-emerald);">459.73 µs / step</td>
+            <td style="color: var(--text-muted);">~24,500 µs (Dropping FPS)</td>
+            <td>10.8 Million nodes/sec</td>
           </tr>
         </tbody>
       </table>
