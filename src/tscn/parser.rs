@@ -4,6 +4,7 @@ use crate::scene::resources::{PackedScene, SceneNodeData};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 
+#[derive(Debug, Clone, Copy, Default)]
 pub struct TscnParser;
 
 impl TscnParser {

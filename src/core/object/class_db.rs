@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use std::sync::RwLock;
 
+#[derive(Debug, Clone)]
 pub struct ClassInfo {
     pub name: String,
     pub parent_class: String,
 }
 
+#[derive(Debug, Clone)]
 pub struct ClassDb {
     classes: HashMap<String, ClassInfo>,
 }

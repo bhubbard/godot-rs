@@ -11,6 +11,7 @@ pub struct InputServer {
 
 static INPUT_SERVER: RwLock<Option<InputServer>> = RwLock::new(None);
 
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Input;
 
 impl Input {

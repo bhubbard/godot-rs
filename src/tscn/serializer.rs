@@ -1,6 +1,7 @@
 use crate::core::variant::Variant;
 use crate::scene::resources::PackedScene;
 
+#[derive(Debug, Clone, Copy, Default)]
 pub struct TscnSerializer;
 
 impl TscnSerializer {

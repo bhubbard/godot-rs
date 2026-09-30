@@ -3,6 +3,7 @@ use crate::core::string::NodePath;
 use crate::scene::node::{Node, NodeData, ProcessMode};
 use std::collections::HashMap;
 
+#[derive(Debug)]
 pub struct SceneTree {
     root_id: ObjectId,
     nodes: HashMap<ObjectId, Node>,
